@@ -12,7 +12,7 @@
 
 ```html
 <div class="box"></div>
-<script src="./index.js"></script>
+<script src="./mouse-dragDrop.js"></script>
 <script>
     let drag = new MouseDragDrop('.box')
     // 绑定事件

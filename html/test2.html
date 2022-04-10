@@ -15,28 +15,41 @@
             height: 60px;
             position: absolute;
             background-color: aqua;
-            top: 44px;
-            left: 222px;
+            top: 24px;
+            left: 60px;
             cursor: pointer;
+            border: 10px solid #333;
+        }
+        .box-wrap {
+            width: 320px;
+            height: 120px;
+            position: absolute;
+            background-color: red;
+            top: 200px;
+            left: 200px;
         }
     </style>
 </head>
 <body>
-    <div class="box"></div>
-    <script src="./index.js"></script>
+    <div class="box-wrap">
+        父盒子已定位
+        <div class="box">子盒子</div>
+    </div>
+    <script src="./mouse-dragDrop.js"></script>
     <script>
         let drag = new MouseDragDrop('.box')
+        let dragWrap = document.querySelector('.box-wrap')
         // 绑定事件
         drag.on('dragStart', function () {
-            this.dom.innerText = '按下'
+            console.log('点击开始');
         })
         drag.on('dragging', function (x,y) {
-            this.dom.style.left = x + 'px'
-            this.dom.style.top = y + 'px'
-            this.dom.innerText = '拖拽中'
+            let { _x,_y } = this.limitRange(dragWrap, x , y)
+            this.dom.style.left = _x + 'px'
+            this.dom.style.top = _y + 'px'
         })
         drag.on('dragEnd', function () {
-            this.dom.innerText = '拖拽结束'
+            console.log('拖拽结束');
         })
         console.log(drag);
     </script>

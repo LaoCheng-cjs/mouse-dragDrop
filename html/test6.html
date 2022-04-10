@@ -15,17 +15,17 @@
             height: 60px;
             position: absolute;
             background-color: aqua;
-            top: 44px;
-            left: 222px;
+            top: 24px;
+            left: 60px;
             cursor: pointer;
             border: 10px solid #333;
         }
         .box-wrap {
             width: 320px;
-            height: 80px;
+            height: 120px;
             position: absolute;
             background-color: red;
-            top: 400px;
+            top: 200px;
             left: 200px;
         }
     </style>
@@ -33,19 +33,20 @@
 <body>
     外面定位，拖拽的基于外面定位。需要手动，还是自动去查找。默认不检查到。查找定位以及每个父级。
     <div class="box-wrap">
-        <div class="box"></div>
+        父盒子已定位
+        <div class="box">子盒子</div>
     </div>
-    <script src="./index.js"></script>
+    <script src="./mouse-dragDrop.js"></script>
     <script>
-        let drag = new MouseDragDrop('.box',{
-            // section: 
-        })
+        let drag = new MouseDragDrop('.box')
+        // 禁止计算每层父级
         drag.openParent = true;
         // 绑定事件
         drag.on('dragStart', function () {
             console.log('点击开始');
         })
         drag.on('dragging', function (x,y) {
+            // 手动获取
             let { _x,_y } = this.getPosition(this.dom.parentNode,x,y)
             this.dom.style.left = _x + 'px'
             this.dom.style.top = _y + 'px'

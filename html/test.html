@@ -18,37 +18,25 @@
             top: 44px;
             left: 222px;
             cursor: pointer;
-            border: 10px solid #333;
-        }
-        iframe {
-            position: absolute;
-            top: 22px;
-            left: 0;
-            z-index: 88;
         }
     </style>
 </head>
 <body>
-    测试iframe
-    <iframe src="./demo.html" frameborder="0"></iframe>
     <div class="box"></div>
-    <script src="./index.js"></script>
+    <script src="./mouse-dragDrop.js"></script>
     <script>
-        let drag = new MouseDragDrop('.box',{
-            // section: 
-        })
+        let drag = new MouseDragDrop('.box')
         // 绑定事件
         drag.on('dragStart', function () {
-            console.log('点击开始');
+            this.dom.innerText = '按下'
         })
         drag.on('dragging', function (x,y) {
-            let { _x,_y } = this.limitRange(window, x , y)
-            this.dom.style.left = _x + 'px'
-            this.dom.style.top = _y + 'px'
+            this.dom.style.left = x + 'px'
+            this.dom.style.top = y + 'px'
+            this.dom.innerText = '拖拽中'
         })
         drag.on('dragEnd', function () {
-
-            console.log('拖拽结束');
+            this.dom.innerText = '拖拽结束'
         })
         console.log(drag);
     </script>
