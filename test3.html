@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试正常情况下进行拖拽</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        .box {
+            width: 220px;
+            height: 60px;
+            position: absolute;
+            background-color: aqua;
+            top: 44px;
+            left: 222px;
+            cursor: pointer;
+            border: 10px solid #333;
+        }
+        .box2 {
+            width: 120px;
+            height: 120px;
+            background-color: rgb(68, 68, 68);
+            margin: 222px auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- 限制区域 -->
+    <div class="box"></div>
+    <div class="box2"></div>
+    <script src="./index.js"></script>
+    <script>
+        let drag = new MouseDragDrop('.box',{
+            // section: 
+        })
+        let box2 = document.querySelector('.box2')
+        // 绑定事件
+        drag.on('dragStart', function () {
+            console.log('点击开始');
+        })
+        drag.on('dragging', function (x,y) {
+            this.dom.style.left = x + 'px'
+            this.dom.style.top = y + 'px'
+            if(this.checkCollision(box2, x , y)){
+                console.log('真');
+            }
+        })
+        drag.on('dragEnd', function () {
+
+            // console.log('拖拽结束');
+        })
+        console.log(drag);
+    </script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试正常情况下进行拖拽</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        .box {
+            width: 220px;
+            height: 60px;
+            position: absolute;
+            background-color: aqua;
+            top: 44px;
+            left: 222px;
+            cursor: pointer;
+            border: 10px solid #333;
+        }
+        .box-wrap {
+            width: 320px;
+            height: 80px;
+            position: absolute;
+            background-color: red;
+            top: 400px;
+            left: 200px;
+        }
+    </style>
+</head>
+<body>
+    外面定位，拖拽的基于外面定位。需要手动，还是自动去查找。默认不检查到。查找定位以及每个父级。
+    <div class="box-wrap">
+        <div class="box"></div>
+    </div>
+    <script src="./index.js"></script>
+    <script>
+        let drag = new MouseDragDrop('.box',{
+            // section: 
+        })
+        drag.openParent = true;
+        // 绑定事件
+        drag.on('dragStart', function () {
+            console.log('点击开始');
+        })
+        drag.on('dragging', function (x,y) {
+            let { _x,_y } = this.getPosition(this.dom.parentNode,x,y)
+            this.dom.style.left = _x + 'px'
+            this.dom.style.top = _y + 'px'
+        })
+        drag.on('dragEnd', function () {
+            console.log('拖拽结束');
+        })
+        console.log(drag);
+    </script>
+</body>
+</html>

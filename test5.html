@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试正常情况下进行拖拽</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        .box {
+            width: 220px;
+            height: 60px;
+            position: absolute;
+            background-color: aqua;
+            top: 44px;
+            left: 222px;
+            cursor: pointer;
+            border: 10px solid #333;
+        }
+        iframe {
+            width: 550px;
+            height: 400px;
+            position: absolute;
+            top: 22px;
+            left: 0;
+            z-index: 88;
+            border: 2px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <p style="color: red;">启动服务器，通过域名才能看到解决过得</p>
+    <iframe src="./test2.html" frameborder="0"></iframe>
+    <iframe src="./demo.html" frameborder="0" style="left: auto;right: 0;"></iframe>
+</body>
+</html>

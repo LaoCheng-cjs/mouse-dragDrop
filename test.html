@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试正常情况下进行拖拽</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        .box {
+            width: 220px;
+            height: 60px;
+            position: absolute;
+            background-color: aqua;
+            top: 44px;
+            left: 222px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="box"></div>
+    <script src="./index.js"></script>
+    <script>
+        let drag = new MouseDragDrop('.box')
+        // 绑定事件
+        drag.on('dragStart', function () {
+            this.dom.innerText = '按下'
+        })
+        drag.on('dragging', function (x,y) {
+            this.dom.style.left = x + 'px'
+            this.dom.style.top = y + 'px'
+            this.dom.innerText = '拖拽中'
+        })
+        drag.on('dragEnd', function () {
+            this.dom.innerText = '拖拽结束'
+        })
+        console.log(drag);
+    </script>
+</body>
+</html>
