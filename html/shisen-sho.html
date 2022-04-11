@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>连连看</title>
+    <link rel="stylesheet" href="./css/index.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        .content-main {
+            margin-top: 46px;
+        }
+        .fn-wrap {
+            display: flex;
+        }
+        .shisen-sho-wrap {
+            display: flex;
+            position: relative;
+        }
+        .selet-list {
+            width: 260px;
+            display: flex;
+        }
+        .selet-list input {
+            outline: none;
+        }
+        .selet-list-group {
+            padding-top: 33px;
+            position: relative;
+            margin-right: 12px;
+        }
+        .selet-list-group .del {
+            width: 40px;
+            height: 26px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: rgb(3, 83, 148);
+            border-radius: 8px;
+            color: aliceblue;
+            text-align: center;
+            line-height: 26px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .selet-list-group .selet-list {
+            height: 58px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .selet-list-group .img-left {
+            width: 61px;
+            height: 100%;
+            cursor: pointer;
+            position: relative;
+        }
+        .selet-list-group .img-left .img-list {
+            height: 100%;
+            width: 100%;
+            display: none;
+        }
+        .selet-list-group .selet-list:last-child {
+            margin-top: 12px;
+        }
+        .selet-list-group .selet-list .text-right input {
+            width: 100%;
+            height: 100%;
+            padding: 12px;
+        }
+        .tip {
+            font-size: 14px;
+            padding: 12px;
+        }
+        .content-main {
+            padding: 12px;
+        }
+        .img-list {
+            position: absolute;
+            right: 0;
+        }
+        /* 预览 */
+        .preview-wrap {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            display: none;
+        }
+        .preview-wrap > i {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: rgba(0,0,0,.78);
+        }
+        .preview-wrap .preview-main {
+            width: 400px;
+            height: 80%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            background-color: #fff;
+            border-radius: 8px;
+            padding-top: 22px;
+        }
+        .preview-wrap .preview-main .del-btn {
+            position: absolute;
+            right: 7px;
+            top: 2px;
+            cursor: pointer;
+        }
+        .preview-wrap .preview-main .preview-list {
+            display: flex;
+            justify-content: space-around;
+        }
+        .preview-wrap .preview-main .preview-list-left {
+            width: 134px;
+            height: 80px;
+            background: #78d3fd;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            padding: 3px;
+            overflow: hidden;
+            animation: all 1200ms linear;
+            cursor: pointer;
+            border: 2px solid #78d3fd;
+        }
+        .preview-wrap .preview-main .preview-list-left:hover {
+            box-shadow: 0 0 6px rgb(0, 0, 0);
+        }
+        .preview-wrap .preview-main .preview-list-left.active {
+            border: 2px solid #ffc401;
+        }
+        .preview-wrap .preview-main .preview-list-left.activeLine {
+            border: 2px solid #ffc401;
+        }
+        .preview-wrap .preview-main .preview-list-left.img-preview {
+            position: relative;
+        }
+        .preview-wrap .preview-main .preview-list-left.img-preview img {
+            width: 100%;
+        }
+        .preview-wrap .preview-main .preview-list-left.img-preview p {
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,.78);
+            color: #fff;
+            text-align: center;
+            font-size: 14px;
+        }
+        .bg-colorNoDrop {
+            cursor: no-drop;
+            background-color: #9f9f9f;
+        }
+        .preview-view {
+            height: 89.8%;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .submit-btn {
+            background-color: rgb(2, 90, 131);
+            color: rgb(255, 255, 255);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            width: 84%;
+            margin: 0 auto;
+            height: 33px;
+            font-size: 15px;
+        }
+        .submit-btn:hover {
+            background-color: rgb(0 145 213);
+        }
+    </style>
+</head>
+<body>
+    <!-- <div class="header-wrap">
+        <div class="left"><div id="title"></div>连连看</div>
+        <div class="right">
+            <div  title="最小化" onclick="setWin('min')">
+                <svg class="icon" style="width: 16px;height: 16px;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3266">
+                    <path d="M23.272727 477.090909m34.909091 0l907.636364 0q34.909091 0 34.909091 34.909091l0 0q0 34.909091-34.909091 34.909091l-907.636364 0q-34.909091 0-34.909091-34.909091l0 0q0-34.909091 34.909091-34.909091Z" p-id="788"></path></svg></div>
+            <div title="关闭"  onclick="setWin('close')"><svg class="icon" style="width: 14px;height: 14px;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2813">
+                <path d="M512 432.46249999L865.92499999 78.49999973a56.13749998 56.13749998 0 0 1 79.53750003-5e-8 56.17500029 56.17500029 0 0 1 0 79.53750002L591.49999971 512l353.925 353.92499999c21.97500029 21.97500029 22.12499972 57.4125003 0 79.53750003a56.17500029 56.17500029 0 0 1-79.53750004 0L512 591.49999971 158.07500001 945.50000027a56.13749998 56.13749998 0 0 1-79.53750003 5e-8 56.17500029 56.17500029 0 0 1 0-79.53750002L432.50000029 512 78.49999973 158.07500001a56.13749998 56.13749998 0 0 1-5e-8-79.53750003 56.17500029 56.17500029 0 0 1 79.53750002 0L512 432.50000029z" p-id="2490"></path></svg></div>
+        </div>
+    </div> -->
+    <div class="content-main">
+        <!-- 连连看 -->
+        <div class="fn-wrap">
+            <div class="add-theme" id="add">新增</div>
+            <div class="add-theme bg-colorNoDrop" id="preview">预览</div>
+        </div>
+        <p class="tip">提示：图片大小</p>
+        <div class="shisen-sho-wrap"></div>
+    </div>
+    <!-- 预览 -->
+    <div class="preview-wrap">
+        <i></i>
+        <div class="preview-main">
+            <div class="del-btn"><svg class="icon" style="width: 1em;height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2859"><path d="M622.8992 512l256.192-256.192c19.2576-19.264 22.5472-47.2128 7.3472-62.4064l-55.8592-55.8592c-15.2-15.2-43.1104-11.8656-62.4064 7.3856L512.0064 401.1136 255.8208 144.9344c-19.264-19.2832-47.2128-22.592-62.4128-7.3728l-55.8592 55.8656c-15.1936 15.1744-11.904 43.1232 7.3856 62.3872l256.192 256.1856-256.192 256.2048c-19.2576 19.2512-22.592 47.1808-7.3856 62.3808l55.8592 55.8656c15.2 15.2 43.1488 11.904 62.4128-7.3536l256.1984-256.2048 256.16 256.1664c19.296 19.3024 47.2064 22.592 62.4064 7.392l55.8592-55.8656c15.1936-15.2 11.904-43.1296-7.3472-62.4064L622.8992 512 622.8992 512zM622.8992 512" p-id="2860"></path></svg></div>
+            <div class="preview-view"></div>
+            <div class="submit-btn">提交</div>
+        </div>
+    </div>
+    <!-- 文件选择 -->
+    <input type="file" style="display:none" id="fileImg" accept="image/*">
+    <script src="./js/jquery.js"></script>
+    <script>
+        if(window.require) { // 兼容jquery
+            window.$ = window.jQuery = require('./js/jquery.js');
+        }
+    </script>
+    <script>
+        $(function () {
+            let len = 0;
+            let leftArr = [],
+                rightArr = [];
+            $('#add').click(function () {
+                len++;
+                checkList()
+                $('.shisen-sho-wrap').append(`<div class="selet-list-group">
+                <div class="del">删除</div>
+                <div class="selet-list">
+                    <div class="img-left">
+                        <!-- 操作页面 -->
+                        <div class="img-list selectFile">
+                            <div><svg class="icon img-preview" style="width: 1.3em;height: 1.3em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2218"><path d="M926.72 829.44q28.672 32.768 31.232 57.344t-18.944 48.128q-24.576 27.648-54.272 26.112t-57.344-24.064l-164.864-158.72q-46.08 30.72-99.84 47.616t-113.152 16.896q-80.896 0-151.552-30.72t-123.392-83.456-82.944-123.392-30.208-151.552q0-79.872 30.208-150.528t82.944-123.392 123.392-83.456 151.552-30.72 151.552 30.72 123.392 83.456 83.456 123.392 30.72 150.528q0 61.44-17.92 116.736t-49.664 101.376q13.312 14.336 37.376 38.4t48.128 48.64 44.544 44.032zM449.536 705.536q53.248 0 100.352-19.968t81.92-54.784 54.784-81.92 19.968-100.352-19.968-100.352-54.784-81.92-81.92-54.784-100.352-19.968-99.84 19.968-81.408 54.784-55.296 81.92-20.48 100.352 20.48 100.352 55.296 81.92 81.408 54.784 99.84 19.968zM512 384l128 0 0 128-128 0 0 128-129.024 0 0-128-126.976 0 0-128 126.976 0 0-128 129.024 0 0 128z" p-id="2219"></path></svg></div>
+                            <i><svg class="icon del-btn" style="width: 1.3em;height: 1.3em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2000"><path d="M162.181567 327.67055h97.332564v695.916023H162.181567zM374.919368 394.409505h97.332564v463.333718H374.919368zM59.53351 247.465682V150.133118h904.93298V247.465682z" fill="#666666" p-id="2001"></path><path d="M162.181567 1024V926.667436h735.605029v97.332564zM587.657169 394.409505h97.332565v463.333718H587.657169z" fill="#666666" p-id="2002"></path><path d="M800.394971 327.67055h97.332564v695.916023h-97.332564zM528.123659 61.305341a93.788903 93.788903 0 0 1 93.788903 93.729842h61.305341a155.094244 155.094244 0 0 0-310.129427 0h61.305341a93.788903 93.788903 0 0 1 93.729842-93.729842z" fill="#666666" p-id="2003"></path></svg></i>
+                        </div>
+                        <div class="icon selectFile">
+                            <svg class="icon" style="vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1811"><path d="M856.32 428.064c-94.816 0-144.928 90.656-185.184 163.52-25.824 46.688-52.512 94.944-78.72 97.568-28.544-5.664-48.096-23.2-70.656-43.36-31.744-28.448-67.488-60.288-130.464-57.952-76.8 3.328-146.24 57.696-206.4 161.696a32 32 0 0 0 55.392 32.064c48.48-83.84 100.224-127.488 153.728-129.824 36.928-1.44 56.96 16.576 84.992 41.664 26.88 24.096 57.344 51.36 105.888 59.392a31.584 31.584 0 0 0 5.216 0.448c64.704 0 101.44-66.464 136.96-130.72 28.352-51.328 57.504-104 97.184-123.072v369.984H128V231.68h488.16a32 32 0 1 0 0-64H96a32 32 0 0 0-32 32v701.824a32 32 0 0 0 32 32h760.32a32 32 0 0 0 32-32V460.064a32 32 0 0 0-32-32zM180.96 424.32c0 57.952 47.168 105.12 105.12 105.12s105.12-47.168 105.12-105.12-47.168-105.088-105.12-105.088-105.12 47.136-105.12 105.088z m146.24 0a41.152 41.152 0 0 1-82.24 0 41.152 41.152 0 0 1 82.24 0zM960 174.656h-61.376V113.28a32 32 0 1 0-64 0v61.344H752.64a32 32 0 1 0 0 64h81.984v81.984a32 32 0 1 0 64 0V238.656H960a32 32 0 1 0 0-64z" p-id="1812"></path></svg>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <input type="text" placeholder="请输入文本">
+                    </div>
+                </div>
+                <div class="selet-list">
+                    <div class="img-left">
+                        <!-- 操作页面 -->
+                        <div class="img-list selectFile">
+                            <div><svg class="icon img-preview" style="width: 1.3em;height: 1.3em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2218"><path d="M926.72 829.44q28.672 32.768 31.232 57.344t-18.944 48.128q-24.576 27.648-54.272 26.112t-57.344-24.064l-164.864-158.72q-46.08 30.72-99.84 47.616t-113.152 16.896q-80.896 0-151.552-30.72t-123.392-83.456-82.944-123.392-30.208-151.552q0-79.872 30.208-150.528t82.944-123.392 123.392-83.456 151.552-30.72 151.552 30.72 123.392 83.456 83.456 123.392 30.72 150.528q0 61.44-17.92 116.736t-49.664 101.376q13.312 14.336 37.376 38.4t48.128 48.64 44.544 44.032zM449.536 705.536q53.248 0 100.352-19.968t81.92-54.784 54.784-81.92 19.968-100.352-19.968-100.352-54.784-81.92-81.92-54.784-100.352-19.968-99.84 19.968-81.408 54.784-55.296 81.92-20.48 100.352 20.48 100.352 55.296 81.92 81.408 54.784 99.84 19.968zM512 384l128 0 0 128-128 0 0 128-129.024 0 0-128-126.976 0 0-128 126.976 0 0-128 129.024 0 0 128z" p-id="2219"></path></svg></div>
+                            <i><svg class="icon del-btn" style="width: 1.3em;height: 1.3em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2000"><path d="M162.181567 327.67055h97.332564v695.916023H162.181567zM374.919368 394.409505h97.332564v463.333718H374.919368zM59.53351 247.465682V150.133118h904.93298V247.465682z" fill="#666666" p-id="2001"></path><path d="M162.181567 1024V926.667436h735.605029v97.332564zM587.657169 394.409505h97.332565v463.333718H587.657169z" fill="#666666" p-id="2002"></path><path d="M800.394971 327.67055h97.332564v695.916023h-97.332564zM528.123659 61.305341a93.788903 93.788903 0 0 1 93.788903 93.729842h61.305341a155.094244 155.094244 0 0 0-310.129427 0h61.305341a93.788903 93.788903 0 0 1 93.729842-93.729842z" fill="#666666" p-id="2003"></path></svg></i>
+                        </div>
+                        <div class="icon selectFile">
+                            <svg class="icon" style="vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1811"><path d="M856.32 428.064c-94.816 0-144.928 90.656-185.184 163.52-25.824 46.688-52.512 94.944-78.72 97.568-28.544-5.664-48.096-23.2-70.656-43.36-31.744-28.448-67.488-60.288-130.464-57.952-76.8 3.328-146.24 57.696-206.4 161.696a32 32 0 0 0 55.392 32.064c48.48-83.84 100.224-127.488 153.728-129.824 36.928-1.44 56.96 16.576 84.992 41.664 26.88 24.096 57.344 51.36 105.888 59.392a31.584 31.584 0 0 0 5.216 0.448c64.704 0 101.44-66.464 136.96-130.72 28.352-51.328 57.504-104 97.184-123.072v369.984H128V231.68h488.16a32 32 0 1 0 0-64H96a32 32 0 0 0-32 32v701.824a32 32 0 0 0 32 32h760.32a32 32 0 0 0 32-32V460.064a32 32 0 0 0-32-32zM180.96 424.32c0 57.952 47.168 105.12 105.12 105.12s105.12-47.168 105.12-105.12-47.168-105.088-105.12-105.088-105.12 47.136-105.12 105.088z m146.24 0a41.152 41.152 0 0 1-82.24 0 41.152 41.152 0 0 1 82.24 0zM960 174.656h-61.376V113.28a32 32 0 1 0-64 0v61.344H752.64a32 32 0 1 0 0 64h81.984v81.984a32 32 0 1 0 64 0V238.656H960a32 32 0 1 0 0-64z" p-id="1812"></path></svg>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <input type="text" placeholder="请输入文本">
+                    </div>
+                </div>
+            </div>`)
+            })
+            let seleFileDom = null;
+            // 监听删除按钮
+            $('.shisen-sho-wrap').on('click','.del',function () {
+                $(this).parents('.selet-list-group').remove()
+                len--;
+                checkList()
+            })
+            // 监听选择文件
+            .on('click','.selectFile',function () {
+                seleFileDom = this;
+                document.querySelector('#fileImg').click()
+                // $(this).parents('.selet-list-group').remove()
+            })
+            .on('click','.img-preview', function (e) { // 图片预览
+                return false;
+            })
+            .on('click', '.del-btn', function (e) { // 删除图片
+                $(this).parents('.selectFile').css('background', '').hide().siblings().show()
+                return false;
+            })
+            // 文件选中发生事件
+            $('#fileImg').change(function (e) {
+                let file = e.target.files[0]
+                if(file) {
+                    let itemUrl = URL.createObjectURL(file)
+                    if($(seleFileDom).hasClass('icon')) {
+                        $(seleFileDom).hide().siblings().css('background','url('+ itemUrl +')').show().attr('data-url',itemUrl)
+                    }else {
+                        $(seleFileDom).css('background','url('+ itemUrl +')').show().attr('data-url',itemUrl)
+                    }
+                }
+                // 清空
+                $(this).val('')
+            })
+            // 预览
+            let hidePrevie = () => {
+                $('.preview-wrap').hide(200)
+            }
+            $('.preview-wrap .del-btn').click(hidePrevie)
+            $('.preview-wrap > i').click(hidePrevie)
+
+            // 预览按钮
+            $('#preview').click(function() {
+                if(!len) {
+                    return;
+                }
+                leftArr = [];
+                rightArr = [];
+                /**
+                 * 校验所有的输入框是否都有值
+                */
+                let flag = false
+                $('.shisen-sho-wrap input').each((i, item) => {
+                    if(!Trim(item.value)){
+                        $(item).focus().parents('.selet-list').css('border','1px solid red')
+                        flag = false
+                        return false;
+                    }
+                    flag = true
+                })
+                // 值都正确了
+                if(flag) {
+                    // 先清空之前预览的
+                    $('.preview-view').children().remove()
+                    /**
+                     * 开始生成了
+                     * 原理：整合两个数组，分别装一对的，每对都设置唯一的值
+                    */
+                   
+                    $('.shisen-sho-wrap .selet-list-group').each((i, item) => {
+                        let dom = $(item)
+                        leftArr.push({
+                            img: dom.find('.selet-list').eq(0).find('.img-list.selectFile').attr('data-url') || '',
+                            txt: dom.find('.selet-list').eq(0).find('input').val(),
+                            id: i
+                        })
+                        rightArr.push({
+                            img: dom.find('.selet-list:last-child').find('.img-list.selectFile').attr('data-url') || '',
+                            txt: dom.find('.selet-list:last-child').find('input').val(),
+                            id: i
+                        })
+                    })
+                    // 如果只有一个或者两个直接反转下即可
+                    if(rightArr.length == 1 || rightArr.length == 2) {
+                        rightArr.reverse()
+                    }else {
+                        mapRandom(rightArr)
+                    }
+                    // 开始循环给渲染给预览页面
+                    let str = ''
+                    for (let i = 0; i < leftArr.length; i++) {
+                        let leftImg = leftArr[i].img,
+                            rightImg = rightArr[i].img
+                        str += `<div class="preview-list">
+                <div class="preview-list-left ${leftImg?'img-preview':''}" data-id="${leftArr[i].id}" data-group="left">
+                    ${leftImg?`<img src="${leftImg}">`:''}
+                    <p>${leftArr[i].txt}</p>
+                </div>
+                <div class="preview-list-left ${rightImg?'img-preview':''}" data-id="${rightArr[i].id}" data-group="right">
+                    ${rightImg?`<img src="${rightImg}">`:''}
+                    <p>${rightArr[i].txt}</p>
+                </div>
+            </div>`
+                    }
+                    let proViewDom = $(str)
+                    $('.preview-view').append(proViewDom).parents('.preview-wrap').show()
+                    // 被移动上去的
+                    let selectDom = null;
+                    // 给每个列都绑定事件
+                    proViewDom.find('.preview-list-left').each((i, item) => {
+                        /**
+                         * 1、（当拖拽的x轴和y轴）与（当前移动到dom的x轴+width和y轴+height）进行比较，是否在当前dom上面
+                         * 2、当前鼠标的位置再dom上，则进行当前dom与在开始拖拽的dom上面，
+                         * 3、比较当前的dom是左侧还是右侧得，如果左侧就可以链接右侧得，反则也是如此，不能同侧进行连线
+                         * 4、如果被绑定的，就直接不能再绑定线了
+                         * 5、如果上述条件都满足进行，然后给线条添加事件，点击后移除线条一级选中关系。给线定义左边和后边的第几个
+                         * 6、如果之前连过线的不能再连
+                         * 7、当未连线状态中且选中中.active，第二次点击进行取消选中
+                        */
+                        // 监听移动到上面
+                        item.onmouseenter = function () {
+                            selectDom = this
+                        }
+                        let tempDom = null,
+                            disable = false,
+                            box = null;
+                        // 监听拖拽
+                        uDrags(item,{
+                            dragStart:function (msg) {
+                                // 清空临时存储的
+                                selectDom = null;
+                                // 获取预览最左侧
+                                box = $('.preview-main').offset()
+                                /**
+                                 * 创建一个线
+                                */
+                               
+                                let itemStatus = item.getAttribute('data-selectLine')
+                                // 如果当前的没有标记连线中dom，进行可以切换
+                                if(!itemStatus){
+                                    $(item)[$(item).hasClass('active')?'removeClass':'addClass']('active')
+                                }
+                                disable = !!itemStatus; //已经连过线了
+                            },
+                            dragging:function (msg) {
+                                if(disable) { // 不存在
+                                    return;
+                                }
+                                if(!tempDom) { // 第一次拖拽才可以，原因在于：点击两个选中后，也得需要连线。只有拖拽才能生成线，不拖拽只是选中
+                                   // 选择dom
+                                   // 此处做判断是因为分左右组
+                                   let _x = item.getAttribute('data-group') == 'left' ? item.offsetLeft + item.offsetWidth : item.offsetLeft,
+                                            _y = item.offsetTop + (item.offsetHeight / 2);
+                                        msg._x = _x + box.left
+                                        msg._y = _y + box.top
+                                    tempDom = $(`<div class="line" style="cursor: pointer;position:absolute;border-top: 3px solid #fd8300;transform-origin: 0 50%;top:${_y}px;left:${ _x }px"></div>`)
+                                    tempDom.click((e) => {
+                                        // console.log(e.target.dataLian1);
+                                        $(e.target.dataLian1).removeClass('activeLine').attr('data-selectline','')
+                                        $(e.target.dataLian2).removeClass('activeLine').attr('data-selectline','')
+                                        // 此处需要将两个选中的进行点击
+                                        $(e.target).remove();
+                                    })
+                                    $('.preview-main .preview-view').append(tempDom) 
+                                }
+                                let lineLength = calcLine(msg);
+                                let angle = getAngle(
+                                    msg._x,
+                                    msg._y,
+                                    msg.x,
+                                    msg.y
+                                );
+                                tempDom.css({
+                                    width: lineLength + 'px',
+                                    transform: `rotate(${angle}deg)`
+                                })
+                                $(item).removeClass('active')
+                                
+                            },
+                            dragEnd:function (msg) {
+                                if(disable) { // 不存在需要连线的
+                                    return;
+                                }
+                                if(!selectDom) { // 发现选中的为null
+                                    tempDom.remove()
+                                    tempDom = null;
+                                    return;
+                                }
+                                // 判断当前是左侧一组的还是右侧一组的，相同组直接放弃了
+                                if(item.getAttribute('data-group') == selectDom.getAttribute('data-group')) {
+                                    tempDom.remove()
+                                    tempDom = null;
+                                    return;
+                                }
+                                // 如果当前选中的是已经被连线的
+                                if(selectDom.getAttribute('data-selectLine')) {
+                                    console.log('已连线');
+                                    tempDom.remove()
+                                    tempDom = null;
+                                    return;
+                                }
+                                /**
+                                 * 检测鼠标再盒子的范围内
+                                 * 拿着当前鼠标x、y轴进行比较是否在当前区域内
+                                 * 要检测矩形的4个点区间内与鼠标一致
+                                 * 进行顺时针方向进行定义4个点
+                                 */
+                                const _selectDom = $(selectDom)
+                                let offsetMsg = _selectDom.offset()
+                                console.log(offsetMsg.left);
+                                let one = { // 第一个点
+                                        x: offsetMsg.left, // 
+                                        y: offsetMsg.top
+                                    },
+                                    two = {
+                                        x: offsetMsg.left + _selectDom.outerWidth(), //  
+                                        y: offsetMsg.top
+                                    },
+                                    three = {
+                                        x: offsetMsg.left + box.left,
+                                        y: offsetMsg.top +  _selectDom.outerHeight()
+                                    },
+                                    four = {
+                                        x: offsetMsg.left,
+                                        y: offsetMsg.top +  _selectDom.outerHeight()
+                                    }
+                                if(msg.x > one.x && msg.y > one.y && msg.x < two.x && msg.y > two.y && msg.x < three.x && msg.y < three.y &&  msg.x > four.x && msg.y < four.y) {
+                                    // 进行矫连线
+                                    let _x = selectDom.getAttribute('data-group') == 'left' ? selectDom.offsetLeft + selectDom.offsetWidth : selectDom.offsetLeft,
+                                        _y = selectDom.offsetTop + (selectDom.offsetHeight / 2) 
+                                    let lineLength = calcLine({
+                                        x: _x + box.left,
+                                        y:  _y + box.top,
+                                        _x: msg._x,
+                                        _y: msg._y
+                                    });
+                                    let angle = getAngle(
+                                        msg._x,
+                                        msg._y,
+                                        _x + box.left,
+                                        _y + box.top,
+                                    );
+                                    tempDom.css({
+                                        width: lineLength + 'px',
+                                        transform: `rotate(${angle}deg)`
+                                    })
+                                    $(selectDom).attr('data-selectLine', $(item).attr('data-id')).addClass('activeLine').removeClass('active')
+                                    $(item).attr('data-selectLine', $(selectDom).attr('data-id')).addClass('activeLine').removeClass('active')
+                                    // 给线设置绑定关系值
+                                    tempDom.get(0).dataLian1 = selectDom
+                                    tempDom.get(0).dataLian2 = item
+                                    tempDom.get(0).isLineStatus = item.getAttribute('data-id') === selectDom.getAttribute('data-id')
+                                }else {
+                                    tempDom.remove()
+                                }
+                                tempDom = null;
+                            }
+                        })
+                    })
+                }
+            })
+            // 校验选中
+            function checkList() {
+                $('#preview')[!len?"addClass":'removeClass']('bg-colorNoDrop')
+            }
+            $('.preview-main').on('click','.preview-list-left',function() {
+                let active = $(this).parents('.preview-view').find('.active');
+                let tempDom = null,
+                    selectDom = null,
+                    item = null;
+                if(active.length == 2) { // 进行连线
+                    // 进行判断两个是不同组，左边的还是右边的了
+                    if(active.eq(0).attr('data-group') == active.eq(1).attr('data-group')) {
+                        $(this).parent().siblings().find('.active').removeClass('active') // 将其他选中都移除掉
+                        return;
+                    }
+                    if(active.eq(0).attr('data-selectline') && active.eq(1).attr('data-selectline')) {
+                        return;
+                    }
+                    selectDom = active.eq(0).get(0)
+                    item = active.eq(1).get(0)
+                    /**
+                     * 左侧的拿到 
+                     * x item.offsetLeft + item.offsetWidth
+                     * 第一个点（x轴\y轴）和第二个点（x轴\y轴）
+                     * 进行比较两个位置哪个是左侧的
+                     */
+                    let oneX = selectDom.getAttribute('data-group') == 'left' ? selectDom.offsetLeft + selectDom.offsetWidth : selectDom.offsetLeft
+                    let oneY = selectDom.offsetTop + (selectDom.offsetHeight / 2)
+                    let twoX = item.getAttribute('data-group') == 'left' ? item.offsetLeft + item.offsetWidth : item.offsetLeft
+                    let twoY = item.offsetTop + (item.offsetHeight / 2)
+                    let box = $('.preview-main').offset()
+                    // console.log(twoX,oneX);
+                    console.log(oneX,oneY);
+                    console.log(twoX,twoY);
+                    // tempDom = createLine(this, $('.preview-main').offset())
+                            // msg._x = _x + box.left
+                            // msg._y = _y + box.top
+                    tempDom = $(`<div class="line" style="cursor: pointer;position:absolute;border-top: 3px solid #fd8300;transform-origin: 0 50%;top:${twoY}px;left:${ twoX }px"></div>`)
+                    tempDom.click((e) => {
+                        // console.log(e.target.dataLian1);
+                        $(e.target.dataLian1).removeClass('activeLine').attr('data-selectline','')
+                        $(e.target.dataLian2).removeClass('activeLine').attr('data-selectline','')
+                        // 此处需要将两个选中的进行点击
+                        $(e.target).remove();
+                    })
+                    $('.preview-main .preview-view').append(tempDom)
+                    // // let _x = selectDom.getAttribute('data-group') == 'left' ? selectDom.offsetLeft + selectDom.offsetWidth : selectDom.offsetLeft,
+                    // //     _y = selectDom.offsetTop + (selectDom.offsetHeight / 2) 
+                    let lineLength = calcLine({
+                        x:  oneX , // 起点的x轴
+                        y:  oneY, // 起点的y轴
+                        _x: twoX,
+                        _y:  twoY
+                    });
+                    let angle = getAngle(
+                        twoX,
+                        twoY,
+                        oneX, // 起点的x轴
+                        oneY, // 起点的y轴
+                    );
+                    tempDom.css({
+                        width: lineLength + 'px',
+                        transform: `rotate(${angle}deg)`
+                    })
+                    tempDom.get(0).dataLian1 = selectDom
+                    tempDom.get(0).dataLian2 = item
+                    tempDom.get(0).isLineStatus = item.getAttribute('data-id') === selectDom.getAttribute('data-id')
+                    // 给标记
+                    $(selectDom).addClass('activeLine').attr('data-selectline', item.getAttribute('data-id')).removeClass('active')
+                    $(item).addClass('activeLine').attr('data-selectline', selectDom.getAttribute('data-id')).removeClass('active')
+                    // removeClass('activeLine')
+                }
+                
+            })
+
+            // 提交
+            let submitBtnFlag = false;
+            $('.submit-btn').click(function () {
+                if(submitBtnFlag) {
+                    return;
+                }
+                submitBtnFlag = true;
+                // 校验是否全部都连了
+                if(leftArr.length != $('.preview-view .line').length){
+                    alert('请连完')
+                    submitBtnFlag = false;
+                    return false;
+                }
+                // 校验每条线的连线的id是否都一致
+                let oneLineFlag = false;
+                $('.preview-view .line').each((i,item) =>{
+                    if(!item.isLineStatus) {
+                        oneLineFlag = true;
+                        return false;
+                    }
+                })
+                if(oneLineFlag) {
+                    alert('很遗憾，没有连对')
+                }else {
+                    alert('恭喜您，全部连对')
+                }
+                submitBtnFlag = false;
+            })
+        })
+        // 绑定点击事件
+        
+        // uDrags
+        function Trim(str){ 
+            return str.replace(/(^\s*)|(\s*$)/g, ""); 
+        }
+        // 随机
+        function mapRandom(arr) {
+            for(let i = 0,len = arr.length; i < len; i++){
+                let currentRandom = parseInt(Math.random() * (len - 1));
+                let current = arr[i];
+                arr[i] = arr[currentRandom];
+                arr[currentRandom] = current;
+            }
+        }
+        // 连线
+        
+        // 拖拽
+function uDrags (dom,cbJson = {}) {
+    //  instanceof HTMLElement 兼容性不好
+    if(typeof dom !== 'object' || !(dom instanceof HTMLElement)) {
+        return console.warn('err：错误，这个不是dom')
+    }
+    let msg = {
+        dom:dom,
+        dragging:false,
+        isClick:false,
+        startX:0,
+        startY:0,
+        domX:0,
+        domY:0,
+        left:0,
+        top:0,
+        x:0,
+        y:0
+    }
+    
+    dom.addEventListener('touchstart', down)
+    dom.addEventListener('mousedown',down)
+    function down (event) {
+        event.preventDefault();// 阻止默认事件
+        if (event.type === 'touchstart') {
+            event.clientY = event.touches[0].clientY;
+            event.clientX = event.touches[0].clientX;
+        }
+        // 获取基本信息
+        msg.dragging = true; // 按下了
+        msg.isClick = true; // 在点击状态
+        msg.startX = event.clientX; // 获取浏览器左边缘鼠标位置
+        msg.startY = event.clientY; // 获取浏览器右边缘鼠标位置
+        msg.domX =  msg.startX - dom.getBoundingClientRect().left; // dom的左边边缘与按下去鼠标的位置
+        msg.domY =  msg.startY - dom.getBoundingClientRect().top; // dom的上边边缘与按下去鼠标的位置
+        cbJson.dragStart(msg)
+        // 并且添加事件
+        window.addEventListener('mousemove', onDragging); // 监听当前移动
+        window.addEventListener('touchmove', onDragging); // 监听当前移动
+        window.addEventListener('mouseup', onDragEnd); // 添加抬起事件
+        window.addEventListener('touchend', onDragEnd);// 添加抬起事件
+        window.addEventListener('contextmenu', onDragEnd); // 右击事件
+        if (self != top) {
+            let subWin = window;
+            var windowFlags = false;
+            // 解决嵌入到iframe中，滑动的太快，出去了，没有执行 dragEnd 回调
+            window.parent.addEventListener('mousemove', function (ev) {
+                if (windowFlags) {
+                    return;
+                }
+                windowFlags = true;
+                cbJson.dragEnd(msg);
+                subWin.removeEventListener('mousemove', onDragging);
+                subWin.removeEventListener('touchmove', onDragging);
+                subWin.removeEventListener('mouseup', onDragEnd);
+                subWin.removeEventListener('touchend', onDragEnd);
+                subWin.removeEventListener('contextmenu', onDragEnd);
+                ev.preventDefault();
+            }, false)
+        }
+    }
+    // 监听拖着
+    function onDragging (event) {
+        if (msg.dragging) {
+            msg.isClick = false;
+            if(event.type === 'touchmove') {
+                event.clientY = event.touches[0].clientY;
+                event.clientX = event.touches[0].clientX;
+            }
+            msg.x = event.clientX;
+            msg.y = event.clientY;
+            msg.left = msg.x - msg.domX;
+            msg.top = msg.y - msg.domY;
+            if(cbJson.dragging && typeof cbJson.dragging === 'function') {
+                cbJson.dragging(msg)
+            }
+            
+        }
+    }
+    // 监听拖拽放开
+    function onDragEnd (e) {
+        if (msg.dragging) {
+            /*
+            * 防止在 mouseup 后立即触发 click，导致滑块有几率产生一小段位移
+            * 不使用 preventDefault 是因为 mouseup 和 click 没有注册在同一个 DOM 上
+            */
+            setTimeout(() => {
+                msg.dragging = false;
+                if (!msg.isClick) {
+                    if(cbJson.dragEnd && typeof cbJson.dragEnd === 'function') {
+                        windowFlags = true
+                        cbJson.dragEnd(msg)
+                        // msg = null;
+                    }
+                }
+            }, 0);
+            window.removeEventListener('mousemove', onDragging);
+            window.removeEventListener('touchmove', onDragging);
+            window.removeEventListener('mouseup', onDragEnd);
+            window.removeEventListener('touchend', onDragEnd);
+            window.removeEventListener('contextmenu', onDragEnd);
+        }
+    }
+    
+}
+    // 计算连线
+    function calcLine(firstPoint) {
+        // 计算出两个点之间的距离
+        let line = Math.sqrt(
+          Math.pow(firstPoint._x - firstPoint.x, 2) + Math.pow(firstPoint._y - firstPoint.y, 2)
+        );
+        return line;
+    }
+    // 获得人物中心和鼠标坐标连线，与y轴正半轴之间的夹角
+    function getAngle(x1, y1, x2, y2) {
+        // 获得人物中心和鼠标坐标连线，与y轴正半轴之间的夹角
+        var x = x1 - x2;
+        var y = y1 - y2;
+        var z = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+        var cos = y / z;
+        var radina = Math.acos(cos); // 用反三角函数求弧度
+        var angle = 180 / (Math.PI / radina); // 将弧度转换成角度
+        if (x2 > x1 && y2 === y1) {
+            // 在x轴正方向上
+            angle = 0;
+        }
+        if (x2 > x1 && y2 < y1) {
+            // 在第一象限;
+            angle = angle - 90;
+        }
+        if (x2 === x1 && y1 > y2) {
+            // 在y轴正方向上
+            angle = -90;
+        }
+        if (x2 < x1 && y2 < y1) {
+            // 在第二象限
+            angle = 270 - angle;
+        }
+        if (x2 < x1 && y2 === y1) {
+            // 在x轴负方向
+            angle = 180;
+        }
+        if (x2 < x1 && y2 > y1) {
+            // 在第三象限
+            angle = 270 - angle;
+        }
+        if (x2 === x1 && y2 > y1) {
+            // 在y轴负方向上
+            angle = 90;
+        }
+        if (x2 > x1 && y2 > y1) {
+            // 在四象限
+            angle = angle - 90;
+        }
+        return angle;
+    }
+    </script>
+</body>
+</html>

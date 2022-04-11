@@ -46,7 +46,9 @@ class MouseDragDrop {
         _dom.addEventListener('mousedown',down)
         var windowFlags = false;
         let domX = null,
-            domY = null
+            domY = null,
+            deviationX = 0,
+            deviationY = 0;
         function down (event) {
             windowFlags = false;
             event.preventDefault();// 阻止默认事件
@@ -62,13 +64,14 @@ class MouseDragDrop {
             domX =  that.startX - _dom.getBoundingClientRect().left; // dom的左边边缘与按下去鼠标的位置
             domY =  that.startY - _dom.getBoundingClientRect().top; // dom的上边边缘与按下去鼠标的位置
             if(!that.openParent) {
-                // 默认递归减去
-                let { _x, _y } = that.getPositions(_dom, domX, domY)
-                domX = _x
-                domY = _y
+                // 进行定位偏差
+                if(['absolute','fixed','relative'].includes(mouseDragDrop.getStyle(_dom.parentNode).position)) {
+                    deviationX = _dom.parentNode.offsetLeft
+                    deviationY = _dom.parentNode.offsetTop
+                }
             }
             bodyDom.classList.add('MouseDragDropCss-iframe')
-            that.#checkEvent('dragStart')
+            that.#checkEvent('dragStart',domX, domY)
             // 并且添加事件
             window.addEventListener('mousemove', onDragging); // 监听当前移动
             window.addEventListener('touchmove', onDragging); // 监听当前移动
@@ -102,9 +105,9 @@ class MouseDragDrop {
                     event.clientX = event.touches[0].clientX;
                 }
                 // ---------------------------------更改------------
-                let x = event.clientX + document.body.scrollLeft - document.body.clientLeft;
-                let y = event.clientY + document.body.scrollTop - document.body.clientTop;
-                that.#checkEvent('dragging',x - domX, y- domY)
+                let x = event.clientX + window.scrollX;
+                let y = event.clientY + window.scrollY;
+                that.#checkEvent('dragging',x - domX - deviationX, y - domY - deviationY)
                 that.x = x
                 that.y = y
             }
@@ -132,7 +135,9 @@ class MouseDragDrop {
         this.destroy = function () {
             _dom.removeEventListener('mousedown',down)
             _dom.removeEventListener('touchstart',down)
+            _dom.MouseDragDrop = null;
         }
+        _dom.MouseDragDrop = this;
     }
     on(str, cb) {
         if(!(cb && typeof cb === 'function')) {
@@ -186,17 +191,17 @@ class MouseDragDrop {
         return !(b1<t2 || l1>r2 || t1>b2 || r1<l2)
     }
     // 递归在哪个
-    getPositions(dom, x, y) {
-        const _parentNode = dom.parentNode
-        if(_parentNode.tagName == 'BODY') { // 到了body了
-            return {
-                _x: x,
-                _y: y
-            }
-        }else {
-            return this.getPositions(_parentNode,x + _parentNode.offsetLeft, y + _parentNode.offsetTop)
-        }
-    }
+    // getPositions(dom, x, y) {
+    //     const _parentNode = dom.parentNode
+    //     if(_parentNode.tagName == 'BODY') { // 到了body了
+    //         return {
+    //             _x: x,
+    //             _y: y
+    //         }
+    //     }else {
+    //         return this.getPositions(_parentNode,x + _parentNode.offsetLeft, y + _parentNode.offsetTop)
+    //     }
+    // }
     // 拖拽基于谁来定位的
     getPosition(dom, x, y, _i) {
         if(!MouseDragDrop.isDOM(dom)) { // 是dom

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试正常情况下进行拖拽</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        .box {
+            width: 220px;
+            height: 60px;
+            position: absolute;
+            background-color: aqua;
+            top: 24px;
+            left: 60px;
+            cursor: pointer;
+            border: 10px solid #333;
+        }
+        .box-wrap {
+            width: 320px;
+            height: 120px;
+            position: absolute;
+            background-color: red;
+            top: 200px;
+            left: 200px;
+        }
+    </style>
+</head>
+<body>
+<div class="box-wrap">
+    <div style="margin-top: 222px">
+        <div class="box"></div>
+    </div>
+</div>
+
+<script src="./mouse-dragDrop.js"></script>
+<script>
+    let drag = new MouseDragDrop('.box')
+    let boxWrap = document.querySelector('.box-wrap')
+    // 禁止当前拖拽父级dom定位产生的偏差
+    drag.openParent = true
+    // 绑定事件
+    drag.on('dragStart', function () {
+        console.log('点击开始');
+    })
+    drag.on('dragging', function (x,y) {
+        let { _x, _y} = this.getPosition(boxWrap,x,y)
+        this.dom.style.left = _x + 'px'
+        this.dom.style.top = _y + 'px'
+    })
+    drag.on('dragEnd', function () {
+        console.log('拖拽结束');
+    })
+</script>
+</body>
+</html>

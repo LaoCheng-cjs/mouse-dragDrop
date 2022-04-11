@@ -10,6 +10,10 @@
             margin: 0;
             padding: 0;
         }
+        body {
+            width: 3600px;
+            height: 2000px;
+        }
         .box {
             width: 220px;
             height: 60px;
@@ -23,14 +27,14 @@
         .box-wrap {
             width: 320px;
             height: 120px;
-            position: absolute;
             background-color: red;
-            top: 200px;
-            left: 200px;
+            margin: 130px 660px;
+            position: relative;
         }
     </style>
 </head>
 <body>
+    <button id="btnscroll">滚动到一定距离</button>
     <div class="box-wrap">
         父盒子已定位
         <div class="box">子盒子</div>
@@ -51,6 +55,9 @@
         drag.on('dragEnd', function () {
             console.log('拖拽结束');
         })
+        document.querySelector('#btnscroll').onclick = function () {
+            window.scrollTo(55,120)
+        }
         console.log(drag);
     </script>
 </body>

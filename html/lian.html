@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        .list-img-wrap {
+            width: 80%;
+            height: 90%;
+            position: fixed;
+            display: flex;
+            top: 50%;
+            left: 50%;
+            background-color: #fff;
+            z-index: 89;
+            transform: translate(-50%,-50%);
+            padding: 20px 10px;
+            border-radius: 8px;
+            display: none;
+        }
+        .list-img-wrap .img-list {
+            width: 120px;
+            height: 120px;
+            overflow: hidden;
+            padding: 6px;
+            border: 1px solid #333;
+            cursor: pointer;
+        }
+        .list-img-wrap .img-list img {
+            width: 100%;
+        }
+        .list-img-wrap .icon {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            cursor: pointer;
+        }
+        .mask-i {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 88;
+            background-color: rgba(0,0,0,0.78);
+            display: none;
+        }
+        .upload {
+            border: 1px solid #666666;
+            background-color: #fff;
+            width: 800px;
+            border-radius: 4px;
+            margin: 22px auto;
+        }
+        .upload_warp {
+            margin: 20px;
+            padding: 40px;
+            border: 2px dashed #666666;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+        .upload_warp .txt{margin-top:15px;}
+        .upload_warp_text {
+            text-align: left;
+            margin-bottom: 10px;
+            padding-top: 10px;
+            text-indent: 14px;
+            border-top: 1px solid #666666;
+            font-size: 14px;
+        }
+        .notice{
+            margin-left: 20px;
+            color: red;
+        }
+
+        .upload_warp_img {
+            border-top: 1px solid #D2D2D2;
+            padding: 14px 0 0 14px;
+            overflow: hidden
+        }
+        .content-main {
+            width: 1200px;
+            margin: 0 auto;
+        }
+        .rectangle {
+            position: absolute;
+            background-color: rgba(0, 235, 235, 0.4);
+            cursor: pointer;
+        }
+        .rectangle .spot {
+            width: 10px;
+            height: 10px;
+            background-color: rgb(0, 235, 235);
+            position: absolute;
+        }
+        .rectangle .spot.top {
+            top: -5px;
+            left: 50%;
+            transform: translate(-50%, 0);
+            cursor: n-resize;
+        }
+        .rectangle .spot.bottom {
+            bottom: -5px;
+            left: 50%;
+            transform: translate(-50%, 0);
+            cursor: n-resize;
+        }
+        .rectangle .spot.left {
+            top: 50%;
+            left: -5px;
+            transform: translate(0, -50%);
+            cursor: e-resize;
+        }
+        .rectangle .spot.right {
+            top:  50%;
+            right:-5px;
+            transform: translate(0, -50%);
+            cursor: e-resize;
+        }
+        .painting-wrap {
+            position: relative;
+        }
+        /* 默认矩形 */
+        .painting-wrap img {
+            cursor: url("./img/rectangle.ico"),auto;
+        }
+        /* 连线 */
+        .painting-wrap.ligature img {
+            cursor: url("./img/ligature.ico"),auto;
+        }
+        /* 选择 */
+        .painting-wrap.hand img {
+            cursor: url("./img/hand.ico"),auto;
+        }
+        .painting-tools {
+            display: flex;
+            margin: 22px 0;
+        }
+        .painting-tools .icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 22px;
+            border: 1px solid #333;
+            cursor: pointer;
+        }
+        .painting-tools .icon.active {
+            background-color: rgb(224, 160, 118);
+            border-color: rgb(224, 160, 118);
+        }
+        .delete-btn {
+            width: 60px;
+            height: 30px;
+            background-color: #fff;
+            position: absolute;
+            border-radius: 8px;
+            top: 0;
+            left: 0;
+            text-align: center;
+            box-shadow: 0 0 10px #333;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 添加或者粘贴进入 -->
+    <div class="add">
+        <div class="upload">
+            <div class="upload_warp">
+                <svg class="icon" style="width: 42px;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1040 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3771"><path d="M986.4068 263.666098l-75.878155 0 0 75.877131c0 20.937868-16.997116 37.936007-37.934984 37.936007-20.945031 0-37.942147-16.999163-37.942147-37.936007l0-75.877131L758.774383 263.666098c-20.942985 0-37.936007-16.999163-37.936007-37.942147 0-20.942985 16.993023-37.934984 37.936007-37.934984l75.877131 0 0-75.878155c0-20.942985 16.997116-37.940101 37.942147-37.940101 20.937868 0 37.934984 16.997116 37.934984 37.940101l0 75.878155 75.878155 0c20.942985 0 37.940101 16.991999 37.940101 37.934984C1024.346901 246.667959 1007.349785 263.666098 986.4068 263.666098L986.4068 263.666098zM758.774383 396.447241c0 31.41243-25.491581 56.909128-56.909128 56.909128-31.413454 0-56.904011-25.497721-56.904011-56.909128s25.490557-56.904011 56.904011-56.904011C733.281779 339.54323 758.774383 365.035834 758.774383 396.447241L758.774383 396.447241zM607.019097 263.666098 75.877131 263.666098l0 528.748453c0.076748-0.265036 83.047438-372.255259 225.244021-372.255259 93.66731 0 188.932 287.689235 248.310366 374.648772 0 0 46.549176-188.480722 126.866433-189.69641 79.44233-1.177825 120.417557 187.301873 120.417557 187.301873l37.936007 0L834.651514 567.175647c0-20.942985 16.997116-37.942147 37.942147-37.942147 20.937868 0 37.934984 16.999163 37.934984 37.942147l0 303.509549c0 41.919738-33.989115 75.877131-75.877131 75.877131L75.877131 946.562327c-41.919738 0-75.877131-33.957393-75.877131-75.877131L0 263.666098c0-41.924855 33.957393-75.877131 75.877131-75.877131l531.141966 0c20.942985 0 37.942147 16.991999 37.942147 37.934984C644.961244 246.667959 627.962082 263.666098 607.019097 263.666098L607.019097 263.666098zM607.019097 263.666098" p-id="3772"></path></svg>
+                <div class="txt">点击上传或者将文件拖到此处</div>
+            </div> 
+        <div class="upload_warp_text">
+            <span class="notice">可以粘贴图片，按 ctrl + v</span>
+        </div>
+        <input type="file" id="upload_file" multiple="multiple" style="display: none;" accept="image/*"> <div class="upload_warp_img" style="display: none;"></div></div>
+    </div>
+    <!-- 内容区域 -->
+    <div class="content-main">
+        <!-- 工具区 -->
+        <div class="painting-tools">
+            <!-- 矩形 -->
+            <svg class="icon rectangle-btn active" style="vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6134"><path d="M876.4664713541666 302.9680989583333H776.4029947916665V202.90462239583334c0-11.865234374999998-9.8876953125-21.7529296875-21.7529296875-21.7529296875s-21.7529296875 9.8876953125-21.7529296875 21.7529296875v100.0634765625H632.8336588541666c-11.865234374999998 0-21.7529296875 9.8876953125-21.7529296875 21.7529296875s9.8876953125 21.7529296875 21.7529296875 21.7529296875h100.0634765625v100.0634765625c0 11.865234374999998 9.8876953125 21.7529296875 21.7529296875 21.7529296875s21.7529296875-9.8876953125 21.7529296875-21.7529296875V346.4739583333333H876.4664713541666c11.865234374999998 0 21.7529296875-9.8876953125 21.7529296875-21.7529296875 0-12.2607421875-9.8876953125-21.7529296875-21.7529296875-21.7529296875zM146.75455729166666 386.0247395833333c11.07421875 0 19.775390625-8.701171874999998 19.775390625-19.775390625h0.7910156249999999v-21.7529296875h36.38671875c10.678710937499998 0 19.775390625-8.701171874999998 19.775390625-19.775390625s-9.0966796875-19.775390625-19.775390625-19.775390625l-56.953125-0.39550781249999994c-11.07421875 0-19.775390625 8.701171874999998-19.775390625 19.775390625v42.71484374999999c0 9.8876953125 8.701171874999998 18.984374999999996 19.775390625 18.984374999999996z m135.26367187500003-41.92382812499999h98.876953125c11.07421875 0 19.775390625-8.701171874999998 19.775390625-19.775390625s-8.701171874999998-19.775390625-19.775390625-19.775390625h-98.876953125c-11.07421875 0-19.775390625 9.0966796875-19.775390625 19.775390625 0 11.07421875 9.0966796875 19.775390625 19.775390625 19.775390625z m177.1875 0h98.876953125c11.07421875 0 19.775390625-8.701171874999998 19.775390625-19.775390625s-8.701171874999998-19.775390625-19.775390625-19.775390625h-98.876953125c-11.07421875 0-19.775390625 9.0966796875-19.775390625 19.775390625 0.7910156249999999 11.07421875 8.701171874999998 19.775390625 19.775390625 19.775390625zM774.8209635416665 560.8391927083335c0-11.07421875-8.701171874999998-19.775390625-19.775390625-19.775390625s-19.775390625 8.701171874999998-19.775390625 19.775390625v98.876953125c0 11.07421875 8.701171874999998 19.775390625 19.775390625 19.775390625s19.775390625-8.701171874999998 19.775390625-19.775390625v-98.876953125z m-19.775390625 157.41210937500003c-11.07421875 0-19.775390625 9.0966796875-19.775390625 19.775390625v64.072265625h-79.1015625v1.1865234374999998c-11.07421875 0-19.775390625 8.701171874999998-19.775390625 19.775390625s8.701171874999998 19.775390625 19.775390625 19.775390625h98.876953125c11.07421875 0 19.775390625-8.701171874999998 19.775390625-19.775390625V738.8177083333334c0-11.865234374999998-9.0966796875-20.56640625-19.775390625-20.56640625zM581.0221354166666 802.0989583333333L166.52994791666666 801.3079427083333V423.2024739583333h-0.7910156249999999c0-11.07421875-8.701171874999998-19.775390625-19.775390625-19.775390625s-19.775390625 8.701171874999998-19.775390625 19.775390625V821.8743489583334c0 11.07421875 8.701171874999998 19.775390625 19.775390625 19.775390625H579.8356119791666c11.07421875 0 19.775390625-9.0966796875 19.775390625-19.775390625 0-11.07421875-9.0966796875-19.775390625-18.5888671875-19.775390625z" p-id="6135"></path></svg>
+            <!-- 小手 -->
+            <svg class="icon hand-btn" style="vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="18647"><path d="M838.784 521.088L241.888 126.976 284.8 842.144l201.28-227.136 162.816 282.016 83.136-48-161.152-279.136 267.904-48.8z" fill="#FFFFFF" p-id="18648"></path><path d="M596.096 581.568l157.76 273.312-110.816 64-159.712-276.64-212.16 239.456L224 96l656.832 433.696-284.736 51.872z m-50.432-23.36l251.04-45.728L259.776 157.952l38.72 644.672 190.336-214.848 165.92 287.392 55.424-32-164.512-284.928z" fill="#5D6D7E" p-id="18649"></path></svg>
+            <!-- 连线 -->
+            <svg class="icon ligature-btn" style="vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="21955"><path d="M950.707228 786.042423L823.955406 659.290601c-11.320836-11.31879-32.8205-12.743232-38.947034 2.045589-1.638313 3.952009-2.045589 15.069207-2.045589 15.069207v85.653799H353.893564c-57.099463 0-103.552447-46.454008-103.552447-103.551424 0-57.099463 46.454008-103.553471 103.552447-103.553471h46.981011v0.001023h342.200756c106.150622 0 192.511525-86.360903 192.511525-192.511525 0-106.151645-86.360903-192.511525-192.511525-192.511525H362.198717C343.132476 107.739816 285.176506 62.388932 216.822722 62.388932c-83.825151 0-152.020322 68.196195-152.020322 152.020323 0 83.825151 68.196195 152.020322 152.020322 152.020322 68.353784 0 126.309754-45.349861 145.375995-107.541295h380.877637c57.099463 0 103.552447 46.454008 103.552448 103.552447 0 57.099463-46.454008 103.552447-103.552448 103.552448H353.893564c-106.151645 0-192.511525 86.360903-192.511525 192.512548 0 106.150622 86.360903 192.510502 192.511525 192.510502h429.069219v81.272002s-0.01228 12.440333 2.045589 17.405415c6.125511 14.788821 27.626197 15.409968 38.947034 4.090155L950.706205 827.031976c11.319813-11.317767 11.319813-29.671787 0.001023-40.989553z m-733.884506-508.570901c-34.771945 0-63.061244-28.290323-63.061244-63.061244s28.2893-63.061244 63.061244-63.061245c34.771945 0 63.061244 28.2893 63.061245 63.061245s-28.2893 63.061244-63.061245 63.061244z" fill="" p-id="21956"></path></svg>
+        </div>
+        <!-- 作图区 -->
+        <div class="painting-wrap"></div>
+    </div>
+    <!-- 图片列表 -->
+    <div class="list-img-wrap">
+        <svg class="icon" style="width: 22px;height: 22px;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2105"><path d="M874.057143 149.942857a512 512 0 1 0 0 724.114286 512 512 0 0 0 0-724.114286zM687.908571 636.16a25.782857 25.782857 0 0 1 0 36.571429l-15.542857 15.542857a25.782857 25.782857 0 0 1-36.571428 0L512 563.748571l-124.16 124.16a25.782857 25.782857 0 0 1-36.571429 0l-15.542857-15.542857a25.782857 25.782857 0 0 1 0-36.571428L460.251429 512l-124.16-124.16a25.782857 25.782857 0 0 1 0-36.571429l15.542857-15.542857a25.782857 25.782857 0 0 1 36.571428 0L512 460.251429l124.16-124.16a25.782857 25.782857 0 0 1 36.571429 0l15.542857 15.542857a25.782857 25.782857 0 0 1 0 36.571428L563.748571 512z" p-id="2106"></path></svg>
+    </div>
+    <!-- 删除按钮 -->
+    <div class="delete-btn">删除</div>
+    <!-- 遮罩 -->
+    <div class="mask-i"></div>
+    <script src="./js/jquery.js"></script>
+    <script src="./mouse-dragDrop.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.js"></script> -->
+    <!-- <script src="./js/paste.js"></script> -->
+    <script>
+        $(function () {
+            let flag = false,
+                toolsStatus = '',
+                selectDomJuxing = null,
+                importFile = [];
+                // 粘贴监听
+            window.addEventListener("paste", function(e) {
+                if(flag) {
+                    return;
+                }
+                flag = true;
+                const files = (e.clipboardData || window.clipboardData).files;
+                addImgs(files)
+            })
+            // 关闭
+            $('.list-img-wrap .icon').click(function () {
+                $(this).parent().hide()
+                $('.mask-i').hide()
+            })
+            // 监听事件
+            $('.list-img-wrap').on('click','.img-list', function () {
+                // 选择某个图片
+                importFile[$(this).index()]
+            })
+            // 拖拽图片文件
+            $('.upload_warp').on('dragover', function (e) {
+                e.preventDefault()
+            })
+            .on('drop', function (e) {
+                e.preventDefault()
+                const files = e.originalEvent.dataTransfer.files // 获取到第一个上传的文件对象
+                addImgs(files)
+            })
+            .click(function () {
+                $('#upload_file').click()
+            })
+            // 选择
+            $('#upload_file').change( function (e) {
+                addImgs(e.target.files)
+            })
+            // 添加图片
+            function addImgs(files) {
+                const len = files.length
+                if(!len) {
+                    return;
+                }
+                if(len == 1) { // 只有一个文件
+                    checkImgs(files[0])
+                    return;
+                }
+                importFile = files
+                let   str = '';
+                    $('.list-img-wrap .img-list').remove()
+                // 如果多张图片的话，就让其选择
+                for (var j = 0; j < len; j++) {
+                    let item = files[j];
+                    if (/image/.test(item.type)) {
+                        str += `<div class="img-list"><img style="user-select: none;"  draggable="false" src="${URL.createObjectURL(item)}" alt=""></div>`
+                    }
+                }
+                if(str) { // 证明是图片
+                    $('.list-img-wrap').append(str).css({display: 'flex'})
+                    $('.mask-i').show()
+                }
+                flag = false;
+            }
+            // 切换功能
+            $('.painting-tools .icon').click(function () {
+                console.log(this);
+            })
+            // 删除
+            $('.delete-btn').click(function () {
+                console.log($(selectDomJuxing));
+            })
+            $('.painting-wrap').html(`<img src="https://t7.baidu.com/it/u=1595072465,3644073269&fm=193&f=GIF">`)
+                        setTimeout(() => {
+                            createRectangle()
+                        },200)
+            // 处理图片文件
+            function checkImgs(file) {
+                if(file) { //
+                    if (/image/.test(file.type)) { // 判断是否一张图片
+                        // 加载图片。加载成功以后判断width，高度不变
+                        $('.painting-wrap').html(`<img src="${URL.createObjectURL(file)}">`)
+                        setTimeout(() => {
+                            createRectangle()
+                        },100)
+                    }
+                }
+            }
+            // 记录器
+            /**
+             * 生成矩形
+             * 1、矩形宽度和高度必须最少是60 * 60
+             * 2、需要4个点
+             * 5、放在中间可以拖拽
+             * */
+            function createRectangle() {
+                let rectangleDom = null;
+                // 添加拖拽功能
+                const newMouse = new MouseDragDrop($('.painting-wrap img').get(0))
+                // newMouse.openParent = true;
+                newMouse.on('dragStart', function (x, y) {
+                    rectangleDom = document.createElement('div')
+                    rectangleDom.classList.add('rectangle')
+                    rectangleDom.style.left = x + 'px';
+                    rectangleDom.style.top = y + 'px';
+                    $(this.dom).parent().append(rectangleDom)
+                })
+                .on('dragging', function (x, y) {
+                    // let { _x, _y} = this.getPosition(this.dom.parentNode,x,y)
+                    // rectangleDom.style.width = _x  + 'px'
+                    // rectangleDom.style.height = _y  +'px'
+                    rectangleDom.style.width = x  + 'px'
+                    rectangleDom.style.height = y  +'px'
+                })
+                .on('dragEnd', function () {
+                    /**
+                     * 判断当前宽度和高度
+                    */
+                    let w = rectangleDom.style.width.slice(0,-2)
+                    let h = rectangleDom.style.height.slice(0,-2)
+                    if(w > 20 && h > 20) {
+                        // 给他们添加4个点和
+                        $(rectangleDom).append(`<div class="spot top"></div>
+                            <div class="spot left"></div>
+                            <div class="spot right"></div>
+                            <div class="spot bottom"></div>`)
+                        // 给矩形添加右键事件
+                        rectangleDom.oncontextmenu = function (event) {
+                            selectDomJuxing = this
+                            $('.delete-btn').css({
+                                left: event.clientX + 'px',
+                                top: window.scrollY + event.clientY + 'px',
+                                display: 'flex'
+                            })
+                            return false;
+                        }
+                        // 给矩形添加拖拽功能
+                        const mouseDrag = new MouseDragDrop(rectangleDom)
+                        mouseDrag.openParent = true;
+                        mouseDrag.on('dragStart', function () {})
+                        .on('dragging', function (x, y) {
+                            let position = this.getPosition(this.dom.parentNode,x,y)
+                            let { _x, _y} = this.limitRange($('.painting-wrap img').get(0),position._x,position._y)
+                            this.dom.style.left = _x + 'px'
+                            this.dom.style.top = _y + 'px'
+                        })
+                        .on('dragEnd', function () {})
+                        // uDrags(rectangleDom,{
+                        //     dragStart(msg) {
+                        //         console.log(msg);
+                        //     },
+                        //     dragging(msg) {
+                        //         console.log(msg);
+                        //         /// 代码规范先写下
+                        //         // msg.dom.style.left = msg.left - msg.domX + 'px'
+                        //         // msg.dom.style.top = msg.y - msg.domY + 'px'
+                        //     },
+                        //     dragEnd() {
+
+                        //     }
+                        // })
+                    }else { // 画的太小了
+                        $(rectangleDom).remove()
+                    }
+                })
+            }
+        })
+    </script>
+</body>
+</html>
