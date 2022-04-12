@@ -52,6 +52,7 @@ class MouseDragDrop {
         function down (event) {
             windowFlags = false;
             event.preventDefault();// 阻止默认事件
+            event.stopPropagation()
             if (event.type === 'touchstart') {
                 event.clientY = event.touches[0].clientY;
                 event.clientX = event.touches[0].clientX;
@@ -71,7 +72,7 @@ class MouseDragDrop {
                 }
             }
             bodyDom.classList.add('MouseDragDropCss-iframe')
-            that.#checkEvent('dragStart',domX, domY)
+            that.#checkEvent('dragStart',domX, domY )
             // 并且添加事件
             window.addEventListener('mousemove', onDragging); // 监听当前移动
             window.addEventListener('touchmove', onDragging); // 监听当前移动
@@ -98,6 +99,8 @@ class MouseDragDrop {
         }
         // 监听拖着
         function onDragging (event) {
+            event.preventDefault()
+            event.stopPropagation()
             if (that.draggingStatus) {
                 that.isClick = false;
                 if(event.type === 'touchmove') {
@@ -107,6 +110,7 @@ class MouseDragDrop {
                 // ---------------------------------更改------------
                 let x = event.clientX + window.scrollX;
                 let y = event.clientY + window.scrollY;
+                //   event.clientX - _dom.getBoundingClientRect().left
                 that.#checkEvent('dragging',x - domX - deviationX, y - domY - deviationY)
                 that.x = x
                 that.y = y
@@ -135,6 +139,12 @@ class MouseDragDrop {
         this.destroy = function () {
             _dom.removeEventListener('mousedown',down)
             _dom.removeEventListener('touchstart',down)
+            deviationX = null
+            deviationY = null
+            domX = null
+            domY = null
+            deviationX = null
+            deviationY = null
             _dom.MouseDragDrop = null;
         }
         _dom.MouseDragDrop = this;
@@ -152,6 +162,12 @@ class MouseDragDrop {
     }
     /**
      * 限制范围
+     * 1、情况一：父级（定位）的父级（定位）的父级（定位）以此类推
+     * 2、情况二：没有定位
+     * 3、情况三：当前定位区域
+     * 4、情况四：正好是自己区域
+     * 5、情况4和情况1联合在一起
+     * 原理：
      */
     limitRange(dom, x, y) {
         let _dom = this.dom
@@ -166,29 +182,37 @@ class MouseDragDrop {
             dom._clientWidth = dom.clientWidth
             dom._clientHeight = dom.clientHeight
         }
+        // 这里是属于反过来嵌入的问题
+        let diffX = dom._clientWidth - _dom.offsetWidth
+        let diffY = dom._clientHeight - _dom.offsetHeight
         return {
-            _x: Math.min(Math.max(0, x),  dom._clientWidth - _dom.offsetWidth),
-            _y: Math.min(Math.max(0, y), dom._clientHeight - _dom.offsetHeight)
+            _x: Math.min(Math.max(0, x), diffX >= 0 ? diffX : (_dom.offsetWidth - dom.offsetLeft)),
+            _y: Math.min(Math.max(0, y), diffY >= 0 ? diffY : (_dom.offsetHeight - dom.offsetTop))
         }
     }
     /**
-     * 检测碰撞
+     * 检测碰撞很难做到定位还有滚动产生的偏差。只能使用h5的拖拽目标了
     */
     checkCollision(dom, _x, _y) {
-        let _dom = this.dom
-        // console.log(x,y,_x,_y);
-        // x坐标值的范围判断，y坐标值的范围判断
-        const box2X = dom.offsetLeft
-        const box2Y = dom.offsetTop
-        var t1 = oDiv.offsetTop;
-        var l1 = oDiv.offsetLeft;
-        var r1 = oDiv.offsetLeft + oDiv.offsetWidth;
-        var b1 = oDiv.offsetTop + oDiv.offsetHeight;
-        var t2 = oDiv2.offsetTop;
-        var l2 = oDiv2.offsetLeft;
-        var r2 = oDiv2.offsetLeft + oDiv2.offsetWidth;
-        var b2 = oDiv2.offsetTop + oDiv2.offsetHeight;
-        return !(b1<t2 || l1>r2 || t1>b2 || r1<l2)
+        let op2 = dom,
+            op = this.dom;
+        var t1 = op.offsetTop;
+
+        var l1 = op.offsetLeft;
+
+        var r1 = op.offsetLeft + op.offsetWidth;
+
+        var b1 = op.offsetTop + op.offsetHeight;
+
+        var t2 = op2.offsetTop;
+
+        var l2 = op2.offsetLeft;
+
+        var r2 = op2.offsetLeft + op2.offsetWidth;
+
+        var b2 = op2.offsetTop + op2.offsetHeight;
+
+        return b1<t2 || l1>r2 || t1>b2 || r1<l2
     }
     // 递归在哪个
     // getPositions(dom, x, y) {

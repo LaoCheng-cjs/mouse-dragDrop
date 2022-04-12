@@ -1,84 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Document</title>
-    <style type="text/css">
-    	* {
-    		padding: 0;
-    		margin: 0;
-    	}
-		#box1 {
-			width: 500px;
-			height: 20px;
-			background: #999;
-			position: relative;
-			margin: 20px auto;
-		}
-		#box2 {
-			width: 20px;
-			height: 20px;
-			background: green;
-			position: absolute;
-		}
-		#box3 {
-			width: 0;
-			height: 0;
-			margin: 20px auto;
-		}
-		 #box3 img {
-  			width: 100%;
-			height: 100%;
-		}
-    </style>
+ <meta charset="UTF-8">
+ <title>Title</title>
+ <style>
+  body, html {
+   width: 100%;
+   height: 100%;
+   margin: 0;
+  }
+ 
+  #container {
+   width: 200px;
+   height: 200px;
+   padding: 15px;
+   border: #00cdcd 2px solid;
+   box-sizing: border-box;
+  }
+ 
+  .item {
+   cursor: default;
+   width: 100%;
+   height: 100%;
+   background: #757575;
+  }
+ </style>
 </head>
-<body>
-	<div id="box1">
-    <div id="box2"></div>
-    </div>
-    <div id="box3">
-    	<img src="./1.jpg">
-    </div>
-</body>
-<script type="text/javascript">
-		// 获取dom元素
-		var oBox1 = document.getElementById('box1');
-		var oBox2 = document.getElementById('box2');
-		var oBox3 = document.getElementById('box3');
-
-		// 按下滚动条后的操作
-		oBox2.onmousedown = function(e) {
-			// 获取事件的必备操作，保证事件被获取
-			var oEvent = e || event
-
-			// 保证只有被按下滚动条后才能执行此函数
-			document.onmousemove = function(e) {
-				var oEvent = e || event
-				var l = oEvent.clientX - oBox1.offsetLeft
-				// 获取滚动条可活动的宽度范围
-				var wid = oBox1.offsetWidth - oBox2.offsetWidth
-				if (l < 0) {
-					l = 0
-				} else if (l > wid) {
-					l = wid
-				}
-				// 位置定位
-				oBox2.style.left = l + 'px'
-
-				// 根据滚动条位置获得比例
-				var scale = l / wid
-				// 图片的宽度和高度
-				var w = 3264 * scale
-				var h = 4080 * scale
-
-				oBox3.style.cssText += 'width:' + w + 'px;height:' + h + 'px;'
-			}
-
-			// 保证鼠标松开后事件不再执行
-			document.onmouseup = function() {
-				document.onmousemove = null
-				document.onmousedown = null
-			}
-		}
+<body id="body">
+<div id="container">
+ <div class="item"></div>
+</div>
+<script>
+ //需要调整尺寸的div
+ let c = document.getElementById('container')
+ // body监听移动事件
+ document.getElementById('body').addEventListener('mousemove', move)
+ // 鼠标按下事件
+ c.addEventListener('mousedown', down)
+ // 鼠标松开事件
+ document.getElementById('body').addEventListener('mouseup', up)
+ 
+ // 是否开启尺寸修改
+ let resizeable = false
+ // 鼠标按下时的坐标，并在修改尺寸时保存上一个鼠标的位置
+ let clientX, clientY
+ // div可修改的最小宽高
+ let minW = 8, minH = 8
+ // 鼠标按下时的位置，使用n、s、w、e表示
+ let direc = ''
+ 
+ // 鼠标松开时结束尺寸修改
+ function up() {
+  resizeable = false
+ }
+ 
+ // 鼠标按下时开启尺寸修改
+ function down(e) {
+  let d = getDirection(e)
+  // 当位置为四个边和四个角时才开启尺寸修改
+  if (d !== '') {
+   resizeable = true
+   direc = d
+   clientX = e.clientX
+   clientY = e.clientY
+  }
+ }
+ 
+ // 鼠标移动事件
+ function move(e) {
+  let d = getDirection(e)
+  let cursor
+  if (d === '') cursor = 'default';
+  else cursor = d + '-resize';
+  // 修改鼠标显示效果
+  c.style.cursor = cursor;
+  // 当开启尺寸修改时，鼠标移动会修改div尺寸
+  if (resizeable) {
+   // 鼠标按下的位置在右边，修改宽度
+   if (direc.indexOf('e') !== -1) {
+    c.style.width = Math.max(minW, c.offsetWidth + (e.clientX - clientX)) + 'px'
+    clientX = e.clientX
+   }
+ 
+   // 鼠标按下的位置在上部，修改高度
+   if (direc.indexOf('n') !== -1) {
+    c.style.height = Math.max(minH, c.offsetHeight + (clientY - e.clientY)) + 'px'
+    clientY = e.clientY
+   }
+   // 鼠标按下的位置在底部，修改高度
+   if (direc.indexOf('s') !== -1) {
+    c.style.height = Math.max(minH, c.offsetHeight + (e.clientY - clientY)) + 'px'
+    clientY = e.clientY
+   }
+ 
+   // 鼠标按下的位置在左边，修改宽度
+   if (direc.indexOf('w') !== -1) {
+    c.style.width = Math.max(minW, c.offsetWidth + (clientX - e.clientX)) + 'px'
+    clientX = e.clientX
+   }
+ 
+  }
+ }
+ 
+ // 获取鼠标所在div的位置
+ function getDirection(ev) {
+  let xP, yP, offset, dir;
+  dir = '';
+ 
+  xP = ev.offsetX;
+  yP = ev.offsetY;
+  offset = 10;
+ 
+  if (yP < offset) dir += 'n';
+  else if (yP > c.offsetHeight - offset) dir += 's';
+  if (xP < offset) dir += 'w';
+  else if (xP > c.offsetWidth - offset) dir += 'e';
+ 
+  return dir;
+ }
 </script>
+</body>
 </html>

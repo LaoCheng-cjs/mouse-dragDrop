@@ -266,7 +266,7 @@
                     return;
                 }
                 importFile = files
-                let   str = '';
+                 let   str = '';
                     $('.list-img-wrap .img-list').remove()
                 // 如果多张图片的话，就让其选择
                 for (var j = 0; j < len; j++) {
@@ -287,9 +287,16 @@
             })
             // 删除
             $('.delete-btn').click(function () {
-                console.log($(selectDomJuxing));
+                // 销毁当前的拖拽事件
+                selectDomJuxing.MouseDragDrop.destroy()
+                // 销毁四个小点
+                $(this).find('.spot').each((i, item) => {
+                    item.MouseDragDrop.destroy()
+                })
+                // 删除本身
+                // $(this).remove()
             })
-            $('.painting-wrap').html(`<img src="https://t7.baidu.com/it/u=1595072465,3644073269&fm=193&f=GIF">`)
+            $('.painting-wrap').html(`<img src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fdingyue.ws.126.net%2Fiv7FAtlVULo0Esjkj8mdKMH4udPPhpGqatIcHUQ6UfM%3DM1539326330923.jpg&refer=http%3A%2F%2Fdingyue.ws.126.net&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1652262031&t=394f8fc78262da7679d8705d5a78790d">`)
                         setTimeout(() => {
                             createRectangle()
                         },200)
@@ -314,8 +321,9 @@
              * */
             function createRectangle() {
                 let rectangleDom = null;
+                let imgQujian = $('.painting-wrap img').get(0)
                 // 添加拖拽功能
-                const newMouse = new MouseDragDrop($('.painting-wrap img').get(0))
+                const newMouse = new MouseDragDrop(imgQujian)
                 // newMouse.openParent = true;
                 newMouse.on('dragStart', function (x, y) {
                     rectangleDom = document.createElement('div')
@@ -325,24 +333,62 @@
                     $(this.dom).parent().append(rectangleDom)
                 })
                 .on('dragging', function (x, y) {
-                    // let { _x, _y} = this.getPosition(this.dom.parentNode,x,y)
-                    // rectangleDom.style.width = _x  + 'px'
-                    // rectangleDom.style.height = _y  +'px'
-                    rectangleDom.style.width = x  + 'px'
-                    rectangleDom.style.height = y  +'px'
+                    let { _x, _y} = this.limitRange(rectangleDom, x, y)
+                    rectangleDom.style.width = _x  + 'px'
+                    rectangleDom.style.height = _y  +'px'
                 })
                 .on('dragEnd', function () {
-                    /**
+                     /**
                      * 判断当前宽度和高度
                     */
                     let w = rectangleDom.style.width.slice(0,-2)
                     let h = rectangleDom.style.height.slice(0,-2)
                     if(w > 20 && h > 20) {
-                        // 给他们添加4个点和
-                        $(rectangleDom).append(`<div class="spot top"></div>
-                            <div class="spot left"></div>
-                            <div class="spot right"></div>
-                            <div class="spot bottom"></div>`)
+                        // 给他们添加4个点和绑定功能
+                        let spots = $(`<div class="spot top" type="top"></div><div class="spot left" type="left"></div><div class="spot right" type="right"></div><div class="spot bottom" type="bottom"></div>`)
+                        $(rectangleDom).append(spots)
+                        spots.each((i, item) => {
+                            let type = item.getAttribute('type')
+                            let parentLeft = 0
+                            new MouseDragDrop(item)
+                            .on('dragStart', function () {
+                                parentLeft = this.dom.parentNode.offsetLeft
+                            })
+                            .on('dragging', function (x, y) {
+                                let positionNode = this.getPosition(this.dom.parentNode.parentNode, x, y)
+                                let { _x, _y} = this.limitRange(imgQujian, positionNode._x, positionNode._y)
+                                console.log(_x);
+                                // 要限制宽度和高度，还得确认方向
+                                if(type === 'right') {// 左右拖拽
+                                    let w = _x - parentLeft + 5
+                                    if(w > 40) {
+                                        this.dom.parentNode.style.width = w + 'px';
+                                    }
+                                }else if(type === 'left') {
+                                        // this.dom.parentNode.style.width = x - this.startX + 'px';
+                                } else { // 上下拖拽
+                                    // this.dom.parentNode.style.height = x + 'px';
+                                }
+                                // switch (type) {
+                                //     case 'left':
+                                        
+                                //         break;
+                                //     case 'right':
+                                        
+                                //         break;
+                                //     case 'top':
+                                        
+                                //         break;
+                                //     case 'bottom':
+                                        
+                                //         break;
+                                //     default:
+                                //         break;
+                                // }
+                            })
+                            .on('dragEnd', function () {})
+                            .openParent = true;
+                        })
                         // 给矩形添加右键事件
                         rectangleDom.oncontextmenu = function (event) {
                             selectDomJuxing = this

@@ -1,3 +1,7 @@
+
+**Black Lives Matter.**
+**Support the Equal Justice Initiative.**
+
 正在测试阶段，试用即可
 ### 实例化
 
