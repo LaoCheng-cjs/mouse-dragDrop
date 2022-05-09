@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>3D球体</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+    <script src="https://cdn.bootcss.com/three.js/r81/three.js"></script>
+</head>
+
+<body>
+    <script type="text/javascript">
+        var scene,
+            camera,
+            renderer;
+
+        scene = new THREE.Scene(); // 创建场景
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); // 创建相机
+        renderer = new THREE.WebGLRenderer(); // 渲染器
+
+        renderer.setSize(window.innerWidth, window.innerHeight); // 设置渲染器 大小
+        document.body.appendChild(renderer.domElement);
+
+        scene.add(camera);
+
+        camera.position.z = 600;
+
+        var radius = 3,
+            segemnt = 20,
+            rings = 20,
+            R = 300;
+        // THREE.Group继承自THREE.Object3D对象，并且和THREE.Object3D对象没有任何区别，仅仅是名字上的差异。
+        var group = new THREE.Group();
+        var bows = new THREE.Group();
+
+        var sphereMaterial = new THREE.MeshLambertMaterial({
+            color: 0xff0000
+        });
+
+        for (var i = 0; i < 19; i++) {
+            var ball = new THREE.Mesh(new THREE.SphereGeometry(radius, segemnt, rings), sphereMaterial);
+            ball.position.x = R * Math.sin((Math.PI / 18) * i);
+            ball.position.y = R * Math.cos((Math.PI / 18) * i);
+
+            group.add(ball);
+        }
+        for (var j = 0; j < 36; j++) {
+            var bow = group.clone();
+            bow.rotation.y = Math.PI * 2 / 36 * j;
+            bows.add(bow);
+        }
+        scene.add(bows);
+
+
+        var pointLight = new THREE.PointLight(0Xffffff);
+
+        pointLight.position.x = 0;
+        pointLight.position.y = 0;
+        pointLight.position.z = 1000;
+
+        scene.add(pointLight);
+
+        var mouseX, mouseY, isMove = false;
+        animation();
+
+        function animation() {
+            if (!isMove) {
+                requestAnimationFrame(animation); //循环调用函数
+                bows.rotation.y += Math.PI * 0.001;
+                bows.rotation.x += Math.PI * 0.001;
+                render(); //渲染界面  
+            }
+        }
+
+        function render() {
+            renderer.render(scene, camera);
+        }
+        /**
+            鼠标点击
+        **/
+        document.onmousedown = function(e) {
+            isMove = true;
+            mouseX = e.pageX;
+            mouseY = e.pageY;
+        };
+        document.onmousemove = function(e) {
+            if (isMove) {
+                var x = e.pageX;
+                var y = e.pageY;
+                var _x = x - mouseX;
+                var _y = y - mouseY;
+                bows.rotation.x += _y * 0.001 * Math.PI;
+                bows.rotation.y += _x * 0.001 * Math.PI;
+                render();
+                mouseX = x;
+                mouseY = y;
+            }
+        };
+        document.onmouseup = function() {
+            isMove = false;
+            animation();
+        }
+    </script>
+</body>
+
+</html>
+

@@ -29,7 +29,9 @@
             height: 120px;
             background-color: red;
             margin: 130px 660px;
-            position: relative;
+            position: sticky;
+            top: 22px;
+            left: 6px;
         }
     </style>
 </head>
@@ -51,6 +53,8 @@
             let { _x,_y } = this.limitRange(dragWrap, x , y)
             this.dom.style.left = _x + 'px'
             this.dom.style.top = _y + 'px'
+            // this.dom.style.left = x + 'px'
+            // this.dom.style.top = y + 'px'
         })
         drag.on('dragEnd', function () {
             console.log('拖拽结束');

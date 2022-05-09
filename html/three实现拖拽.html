@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="mainCanvas"></canvas>
+    <script src="./js/three.min.js"></script>
+    <script src="./mouse-dragDrop.js"></script>
+    <script>
+        var scene,
+            camera,
+            renderer;
+
+        scene = new THREE.Scene(); // 创建场景
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); // 创建相机
+        renderer = new THREE.WebGLRenderer({
+            canvas: document.getElementById('mainCanvas')//画布
+        }); // 渲染器
+
+        renderer.setSize(window.innerWidth, window.innerHeight); // 设置渲染器 大小
+        document.body.appendChild(renderer.domElement);
+
+        scene.add(camera);
+
+        camera.position.z = 600;
+
+        var radius = 3,
+            segemnt = 20,
+            rings = 20,
+            R = 300;
+        // THREE.Group继承自THREE.Object3D对象，并且和THREE.Object3D对象没有任何区别，仅仅是名字上的差异。
+        var group = new THREE.Group();
+        var bows = new THREE.Group();
+        renderer.setClearColor( 0xffffff, 0);
+        var sphereMaterial = new THREE.MeshLambertMaterial({
+            color: new THREE.Color("rgb(255, 255, 0)")
+        });
+
+        for (var i = 0; i < 19; i++) {
+            var ball = new THREE.Mesh(new THREE.SphereGeometry(radius, segemnt, rings), sphereMaterial);
+            ball.position.x = R * Math.sin((Math.PI / 18) * i);
+            ball.position.y = R * Math.cos((Math.PI / 18) * i);
+
+            group.add(ball);
+        }
+        for (var j = 0; j < 36; j++) {
+            var bow = group.clone();
+            bow.rotation.y = Math.PI * 2 / 36 * j;
+            bows.add(bow);
+        }
+        scene.add(bows);
+
+
+        var pointLight = new THREE.PointLight(0Xffffff);
+
+        pointLight.position.x = 0;
+        pointLight.position.y = 0;
+        pointLight.position.z = 1000;
+
+        scene.add(pointLight);
+
+        var mouseX, mouseY, isMove = false;
+        animation();
+
+        function animation() {
+            if (!isMove) {
+                requestAnimationFrame(animation); //循环调用函数
+                bows.rotation.y += Math.PI * 0.001;
+                bows.rotation.x += Math.PI * 0.001;
+                render(); //渲染界面  
+            }
+        }
+
+        function render() {
+            renderer.render(scene, camera);
+        }
+
+        /**
+            鼠标点击
+        **/
+        let drag = new MouseDragDrop('#mainCanvas')
+        // 绑定事件
+        drag.on('dragStart', function () {
+        })
+        drag.on('dragging', function (x,y) {
+            bows.rotation.x += (this.y - this.startY) / 100 * 0.001 * Math.PI;
+            bows.rotation.y += (this.x - this.startX) / 100 * 0.001 * Math.PI;
+            render();
+            isMove = true;
+        })
+        drag.on('dragEnd', function () {
+            isMove = false;
+            animation();
+        })
+        window.onresize=function(){
+            // 重置渲染器输出画布canvas尺寸
+            renderer.setSize(window.innerWidth,window.innerHeight);
+            // 全屏情况下：设置观察范围长宽比aspect为窗口宽高比
+            camera.aspect = window.innerWidth/window.innerHeight;
+            // 渲染器执行render方法的时候会读取相机对象的投影矩阵属性projectionMatrix
+            // 但是不会每渲染一帧，就通过相机的属性计算投影矩阵(节约计算资源)
+            // 如果相机的一些属性发生了变化，需要执行updateProjectionMatrix ()方法更新相机的投影矩阵
+            camera.updateProjectionMatrix ();
+        };
+    </script>
+</body>
+</html>

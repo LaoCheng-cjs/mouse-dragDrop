@@ -1,4 +1,4 @@
-""
+"use strict";
 /*
  * version 1.0
  * 2022-04-09
@@ -49,6 +49,7 @@ class MouseDragDrop {
             domY = null,
             deviationX = 0,
             deviationY = 0;
+        let parentPosition = null;
         function down (event) {
             windowFlags = false;
             event.preventDefault();// 阻止默认事件
@@ -66,13 +67,14 @@ class MouseDragDrop {
             domY =  that.startY - _dom.getBoundingClientRect().top; // dom的上边边缘与按下去鼠标的位置
             if(!that.openParent) {
                 // 进行定位偏差
-                if(['absolute','fixed','relative'].includes(mouseDragDrop.getStyle(_dom.parentNode).position)) {
+                parentPosition = MouseDragDrop.getStyle(_dom.parentNode).position
+                if(['absolute','fixed','relative','sticky'].includes(parentPosition)) {
                     deviationX = _dom.parentNode.offsetLeft
                     deviationY = _dom.parentNode.offsetTop
                 }
             }
             bodyDom.classList.add('MouseDragDropCss-iframe')
-            that.#checkEvent('dragStart',domX, domY )
+            that.#checkEvent('dragStart',domX, domY)
             // 并且添加事件
             window.addEventListener('mousemove', onDragging); // 监听当前移动
             window.addEventListener('touchmove', onDragging); // 监听当前移动
@@ -108,9 +110,8 @@ class MouseDragDrop {
                     event.clientX = event.touches[0].clientX;
                 }
                 // ---------------------------------更改------------
-                let x = event.clientX + window.scrollX;
-                let y = event.clientY + window.scrollY;
-                //   event.clientX - _dom.getBoundingClientRect().left
+                let x = event.clientX + (parentPosition === 'fixed' ? 0: window.scrollX);
+                let y = event.clientY + (parentPosition === 'fixed' ? 0: window.scrollY);
                 that.#checkEvent('dragging',x - domX - deviationX, y - domY - deviationY)
                 that.x = x
                 that.y = y
@@ -167,9 +168,10 @@ class MouseDragDrop {
      * 3、情况三：当前定位区域
      * 4、情况四：正好是自己区域
      * 5、情况4和情况1联合在一起
-     * 原理：
+     * 6、其他dom的话
+     * 原理： 
      */
-    limitRange(dom, x, y) {
+    limitRange(dom, x, y,minLeft,minTop) {
         let _dom = this.dom
         if(Object.prototype.toString.call(dom) === '[object Window]') {
             dom._clientWidth = dom.innerWidth
@@ -186,8 +188,8 @@ class MouseDragDrop {
         let diffX = dom._clientWidth - _dom.offsetWidth
         let diffY = dom._clientHeight - _dom.offsetHeight
         return {
-            _x: Math.min(Math.max(0, x), diffX >= 0 ? diffX : (_dom.offsetWidth - dom.offsetLeft)),
-            _y: Math.min(Math.max(0, y), diffY >= 0 ? diffY : (_dom.offsetHeight - dom.offsetTop))
+            _x: Math.min(Math.max(minLeft?minLeft:0, x), diffX >= 0 ? diffX : (_dom.offsetWidth - dom.offsetLeft)),
+            _y: Math.min(Math.max(minTop?minTop:0, y), diffY >= 0 ? diffY : (_dom.offsetHeight - dom.offsetTop))
         }
     }
     /**
@@ -197,21 +199,13 @@ class MouseDragDrop {
         let op2 = dom,
             op = this.dom;
         var t1 = op.offsetTop;
-
         var l1 = op.offsetLeft;
-
         var r1 = op.offsetLeft + op.offsetWidth;
-
         var b1 = op.offsetTop + op.offsetHeight;
-
         var t2 = op2.offsetTop;
-
         var l2 = op2.offsetLeft;
-
         var r2 = op2.offsetLeft + op2.offsetWidth;
-
         var b2 = op2.offsetTop + op2.offsetHeight;
-
         return b1<t2 || l1>r2 || t1>b2 || r1<l2
     }
     // 递归在哪个
@@ -288,6 +282,71 @@ class MouseDragDrop {
     */
     static getStyle = function (obj,attr){
         return obj.currentStyle?obj.currentStyle:getComputedStyle(obj);
+    }
+    /**
+     * 获取两点之间距离
+     * @param {x1} number 第一个点x轴
+     * @param {y1} number 第一个点y轴
+     * @param {x2} number 第二个点x轴
+     * @param {y2} number 第二个点y轴
+     * @return {number} 两点之间的线距离
+    */
+    static getCalcLine(x1,y1,x2,y2) {
+        // 计算出两个点之间的距离
+        let line = Math.sqrt(
+          Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2)
+        );
+        return line;
+    }
+    /**
+     * 获得两个点坐标连线，与y轴正半轴之间的夹角
+     * @param {x1} number 第一个点x轴
+     * @param {y1} number 第一个点y轴
+     * @param {x2} number 第二个点x轴
+     * @param {y2} number 第二个点y轴
+     * @return {number} 两点之间的夹角
+    */
+    static getAngle(x1, y1, x2, y2) {
+        // 获得人物中心和鼠标坐标连线，与y轴正半轴之间的夹角
+        var x = x1 - x2;
+        var y = y1 - y2;
+        var z = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+        var cos = y / z;
+        var radina = Math.acos(cos); // 用反三角函数求弧度
+        var angle = 180 / (Math.PI / radina); // 将弧度转换成角度
+        if (x2 > x1 && y2 === y1) {
+            // 在x轴正方向上
+            angle = 0;
+        }
+        if (x2 > x1 && y2 < y1) {
+            // 在第一象限;
+            angle = angle - 90;
+        }
+        if (x2 === x1 && y1 > y2) {
+            // 在y轴正方向上
+            angle = -90;
+        }
+        if (x2 < x1 && y2 < y1) {
+            // 在第二象限
+            angle = 270 - angle;
+        }
+        if (x2 < x1 && y2 === y1) {
+            // 在x轴负方向
+            angle = 180;
+        }
+        if (x2 < x1 && y2 > y1) {
+            // 在第三象限
+            angle = 270 - angle;
+        }
+        if (x2 === x1 && y2 > y1) {
+            // 在y轴负方向上
+            angle = 90;
+        }
+        if (x2 > x1 && y2 > y1) {
+            // 在四象限
+            angle = angle - 90;
+        }
+        return angle;
     }
 }
 if (typeof define === 'function') {
